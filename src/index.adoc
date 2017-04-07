@@ -1,180 +1,127 @@
-= A Demonstration of the{sp} ioslides Presentation Engine: As Emulated by Bespoke.js
-Author Name
-:organization: ACME Inc.
-:position: Job Title
+= System & Integration Testing with Kubernetes & Openshift: using Arquillian Cube & Forge
+Dipak Pawar
+:organization: Red Hat.
+:position: Software Engineer
 :header-opts: slice
 :imagesdir: images
 :sectids!:
 :experimental:
 :source-highlighter: prettify
 
-== Slide with Bullets
-* Titles are formatted as Open Sans with bold applied
-* The font size of titles is set at 45
-* Title capitalization is title case
-  - Subtitle capitalization is title case
-* Titles and subtitles should never have a period at the end
-
-== Slide with Bullets that Build: Subtitle Placeholder
-A list where items build:
-
+== Arquillian?
 [%build]
-* Pressing kbd:[h] highlights code snippets
-* Pressing kbd:[p] toggles speaker notes (if they're on the current slide)
-* Pressing kbd:[f] toggles fullscreen viewing
-* Pressing kbd:[w] toggles widescreen
-* Pressing kbd:[o] toggles overview mode
-* Pressing kbd:[ESC] toggles off these goodies
+* Testing Platform
+* Features
+	- Container Agnostic
+	- IDE friendly
+	- Extensible Platform
+	- Test Enrichments
+	- Strong tooling for getting started
+	- Integration available with Junit, TestNG, Spock, JBehave, Cucumber
 
-Another list, but items fade as they build:
+== Why?
+image::arquilliancube.jpg[Arquillian Cube,1100,700,role=cover canvas]
+* `*Manages Lifecycle of Containers*`
+* `*Manages Deployment for Kubernetes & Openshift*`
+* `*Make created services, pods, replica sets and kubernetes client available inside your test case (via @ArquillianResource)*`
+* `*Advanced namespace management*`
 
-[%build.fade]
-* Hover over me!
-* Hover over me!
-* Hover over me!
 
-[.compact]
-== Slide with Smaller Font
-* All http://google.com[links] open in new tabs.
-* To change that behavior, add `target="_self"` to the link.
-
-== Code Slide (with Subtitle Placeholder): Subtitle Placeholder
-Press kbd:[h] to highlight important sections of code (wrapped in `<b>`).
-
-[source,html]
-----
-include::listings/hello-world-script.html[tag=outer]
-----
+== System Testing
 
 [.compact]
-== Code Slide (Smaller Font)
-[source,javascript]
+== System Test
+[source,java]
 ----
-include::listings/hello-world-script.html[tag=inner,indent=0]
+    import io.fabric8.kubernetes.client.KubernetesClient;
+    import org.jboss.arquillian.junit.Arquillian;
+    import org.jboss.arquillian.test.api.ArquillianResource;
+    import org.junit.Test;
+    import org.junit.runner.RunWith;
+
+    import static io.fabric8.kubernetes.assertions.Assertions.assertThat;
+
+    @RunWith(Arquillian.class)
+    public class SystemTest {
+
+        @ArquillianResource
+        KubernetesClient client;
+
+        @Test
+        public void testRunningPodStaysUp() throws Exception {
+            assertThat(client).deployments().pods().isPodReadyForPeriod();
+        }
+    }
 ----
 
-[source,html]
+[.note]
+Ready within a time period (30 seconds by default), then that the pod keeps being Ready for a period (defaults to 10 seconds).
+
+== Integration Testing
+
+== Integration Test
+[source,java]
 ----
-include::listings/style-element.html[]
+    @RunWith(Arquillian.class)
+    public class ExampleTest {
+
+	    @ArquillianResource KubernetesClient client;
+
+	    @ArquillianResource Session session;
+
+	    @Test
+	    public void testAtLeastOnePod() throws Exception {
+	        assertThat(client).pods().runningStatus().filterNamespace(session.getNamespace()).hasSize(1);
+	    }
+    }
 ----
 
-[source,html]
-----
-include::listings/my-awesome-page.html[]
-----
+== Write a test using
+image::forge.png[Forge,900,500,role=cover, canvas]
 
-== Slide with Speaker Notes
-Press kbd:[p] to toggle speaker notes.
-
-[.cue]
-****
-include::transcript.adoc[tag=speaker-notes]
-****
-
-== Presenter Mode
-Add `link:?presentme=true[]` to the URL to enabled presenter mode.
-This setting is sticky, meaning refreshing the page will persist presenter mode.
-
-Hit `link:?presentme=false[]` to disable presenter mode.
-
-[.cue]
-****
-include::transcript.adoc[tag=presenter-mode]
-****
-
-== Slide with Image
-image::piechart.png[Pie chart description,654,419,role=reflect,credit="source: place source info here"]
-
-== Slide with Image (Centered horz/vert)
-image::barchart.png[Bar chart description,697,299,role=crux,credit="source: place source info here"]
-
-== Table Option A: Subtitle Placeholder
-[%header%autowidth.spread]
-|===
- |      |Column 1     |Column 2    |Column 3    |Column 4
-s|Row 1 |placeholder v|placeholder |placeholder |placeholder
-s|Row 2 |placeholder  |placeholder |placeholder |placeholder
-s|Row 3 |placeholder  |placeholder |placeholder |placeholder
-s|Row 4 |placeholder  |placeholder |placeholder |placeholder
-s|Row 5 |placeholder  |placeholder |placeholder |placeholder
-|===
+== Prerequisites
+[%build]
+- Make sure that forge is installed
+- Go to Forge console by running command `forge`
+- Install arquillian addon for Forge using:
+ `addon-install-from-git --url https://github.com/forge/arquillian-addon.git`
 
 [.compact]
-== Table Option A (Smaller Text): Subtitle Placeholder
-[%header%autowidth.spread]
-|===
- |      |Column 1     |Column 2    |Column 3    |Column 4
-s|Row 1 |placeholder v|placeholder |placeholder |placeholder
-s|Row 2 |placeholder  |placeholder |placeholder |placeholder
-s|Row 3 |placeholder  |placeholder |placeholder |placeholder
-s|Row 4 |placeholder  |placeholder |placeholder |placeholder
-s|Row 5 |placeholder  |placeholder |placeholder |placeholder
-|===
+== Write a test for K8s using Forge
+[source,bash]
+----
+	       # Create a project.
+	project-new --named demo-k8s
 
-== Table Option B: Subtitle Placeholder
-[.pivot.spread%autowidth,cols=4]
-|===
-h|Header 1 |placeholder v|placeholder |placeholder
-h|Header 2 |placeholder  |placeholder |placeholder
-h|Header 3 |placeholder  |placeholder |placeholder
-h|Header 4 |placeholder  |placeholder |placeholder
-h|Header 5 |placeholder  |placeholder |placeholder
-|===
+	# Add depenency & configuration for arquillian & junit.
+	arquillian-setup --test-framework junit --standalone
 
-== Slide Styles
-[.columns-2.compact.float-group]
---
-[.left]
-* class="red"
-* class="red2"
-* class="red3"
-* class="blue"
-* class="blue2"
-* class="blue3"
-* class="green"
-* class="green2"
+	# Add depenency & configuration required for arquillian-cube
+	arquillian-cube-setup --type kubernetes --file-path src/test/resources/k8s.json
 
-[.left]
-* class="green3"
-* class="yellow"
-* class="yellow2"
-* class="yellow3"
-* class="gray"
-* class="gray2"
-* class="gray3"
-* class="gray4"
---
+	# Create a test.
+	arquillian-create-test --named KubernetesTest --target-package org.arquillian.cube
 
-[.text-center]
---
-[pass,subs=normal]
-I am centered text with a btn:[Button] and [.disabled]#btn:[Disabled]# button.
---
+	# Add Cube Test.
+	arquillian-cube-add-test --test-class org.arquillian.cube.KubernetesTest --service-name serviceName
 
-[.inverse.segue]
-== Segue Slide: Subtitle Placeholder
+	# Run test in Forge console.
+	build
 
-== Full Image (with Optional Header)
-image::mountains.jpg[Mountains,1100,700,role=cover canvas]
+	# OR
 
-[.credit.light]
-unsplash.com/photos/PKVcQXEcfLU
+	# Run test using maven.
+	mvn test
+----
 
-[.inverse.segue.badge-right.badge-bottom]
-== !
-[quote.tada,Name,Company]
-This is an example of a quote.
+[.note]
+Test Scaffolding
 
-[.closing.segue.badge-right]
-== <Thank You!>
-Important contact information goes here.
+== More examples
+
+[.closing.badge-right]
+== Questions?
 
 [horizontal.contact]
-g+:: plus.google.com/1234567890
-twitter:: @yourhandle
-www:: www.you.com
-github:: github.com/you
-
-[.inverse.subject]
-== !
-image::google-developers-logo-inverse.svg[Google Developers,422,96,role=logo crux]
+twitter:: @dipakpawar231
+github:: github.com/dipak-pawar
