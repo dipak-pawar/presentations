@@ -6,7 +6,9 @@ Dipak Pawar
 :imagesdir: images
 :sectids!:
 :experimental:
-:source-highlighter: prettify
+:doctype: book
+:source-highlighter: coderay
+:listing-caption: Listing
 
 == Arquillian?
 [%build]
@@ -19,9 +21,6 @@ Dipak Pawar
 	- Strong tooling for getting started
 	- Integration available with Junit, TestNG, Spock, JBehave, Cucumber
 
-
-
-
 == Why?
 image::arquilliancube.jpg[Arquillian Cube,1100,700,role=cover canvas]
 * `*Manages Lifecycle of Containers*`
@@ -29,24 +28,13 @@ image::arquilliancube.jpg[Arquillian Cube,1100,700,role=cover canvas]
 * `*Make created services, pods, replica sets and kubernetes client available inside your test case (via @ArquillianResource)*`
 * `*Advanced namespace management*`
 
-
-
 == Integration Testing
 [%build]
 - Integration testing is the phase in software testing in which individual software modules are combined and tested as a group
 
-
-
-
-
 == System Testing
 [%build]
 - System Testing is a level of the software testing where a complete and integrated software is tested.
-
-
-
-
-
 
 
 == Write a test using
@@ -63,7 +51,7 @@ image::forge.png[Forge,900,500,role=cover, canvas]
 == Write a test for K8s using Forge
 [source,bash]
 ----
-	       # Create a project.
+	# Create a project.
 	project-new --named demo-k8s
 
 	# Add depenency & configuration for arquillian & junit.
@@ -134,7 +122,6 @@ Test Scaffolding
 
 [.note]
 Ready within a time period (30 seconds by default), then that the pod keeps being Ready for a period (defaults to 10 seconds).
-
 
 [.closing.badge-right]
 == Questions?
