@@ -1,4 +1,4 @@
-= System & Integration Testing with Kubernetes & Openshift: using Arquillian Cube & Forge
+= Integration Testing with Kubernetes & Openshift: using Arquillian Cube & Forge
 Dipak Pawar
 :organization: Red Hat.
 :position: Software Engineer
@@ -10,37 +10,44 @@ Dipak Pawar
 :source-highlighter: coderay
 :listing-caption: Listing
 
-== Arquillian?
-[%build]
-* Testing Platform
-* Features
-	- Container Agnostic
-	- IDE friendly
-	- Extensible Platform
-	- Test Enrichment
-	- Strong tooling for getting started
-	- Integration available with Junit, TestNG, Spock, JBehave, Cucumber
-
 == Why?
 image::arquilliancube.jpg[Arquillian Cube,1100,700,role=cover canvas]
+* `*Advanced namespace management*`
 * `*Manages Lifecycle of Containers*`
 * `*Manages Deployment for Kubernetes & Openshift*`
 * `*Make created services, pods, replica sets and kubernetes client available inside your test case (via @ArquillianResource)*`
-* `*Advanced namespace management*`
 
-== Integration Testing
+== End to end test flow
 [%build]
-- Integration testing is the phase in software testing in which individual software modules are combined and tested as a group
 
-== System Testing
-[%build]
-- System Testing is a level of the software testing where a complete and integrated software is tested.
+----
+Given:
 
+- Kubernetes cluster should be up & running.
+- Deployment config.
+----
+
+----
+When:
+
+- Deploy Resources:
+ * Create temporary unique namespace per testsuite.
+ * Deploy all resources to kubernetes cluster.
+ * Wait for environment to setup on cluster.
+----
+
+----
+Then:
+
+- Inject all resources like KubernetesClient, Services, Replication Controller, Pods into test & make it available to perform operations around it.
+- Verify all required resources & integration around all resources.
+- Clean up entire namespace after test.
+----
 
 == Write a test using
 image::forge.png[Forge,900,500,role=cover, canvas]
 
-== Prerequisites
+Prerequisites
 [%build]
 - Make sure that forge is installed
 - Go to Forge console by running command `forge`
@@ -76,9 +83,23 @@ image::forge.png[Forge,900,500,role=cover, canvas]
 ----
 
 [.note]
-Test Scaffolding
+Test Scaffolding for arquillian-cube
 
 == Integration Test
+Problem:
+- Verify number of pods running in current namespace after deployment as a part of your build pipeline.
+
+* Solution1: Write shell scripts for following logic:
+  - Deploy resources
+  - Switch to required namespace
+  - Look for all pods
+  - Verify it with expected number of pods
+
+* Solution2: Let's look at how easy it is using arquillian-cube ?
+- Arquillian-cube create unique namespace for your tests
+- Manages deployment for you.
+- You have all resources available to you inside test. Look for following example.
+
 [source,java]
 ----
     @RunWith(Arquillian.class)
@@ -95,8 +116,12 @@ Test Scaffolding
     }
 ----
 
+We can verify almost every resource inside tests(rc, rs, po, svc), application endpoints & it is alive or not.
+
 [.compact]
-== System Test
+
+== More examples
+
 [source,java]
 ----
     import io.fabric8.kubernetes.client.KubernetesClient;
@@ -122,6 +147,11 @@ Test Scaffolding
 
 [.note]
 Ready within a time period (30 seconds by default), then that the pod keeps being Ready for a period (defaults to 10 seconds).
+
+== Resources
+* https://github.com/arquillian/arquillian-cube
+* http://arquillian.org/arquillian-cube/
+
 
 [.closing.badge-right]
 == Questions?
